@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Ademicon Sênior v6.5</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ademicon: {
+                            red: '#D91D24',
+                            darkRed: '#B3141B',
+                            dark: '#111827',
+                            cardBg: '#FFFFFF',
+                            inputBg: '#F8FAFC'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F1F5F9; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-900 antialiased min-h-screen p-3 sm:p-6 lg:p-8">
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- PAINEL ESQUERDO: CONTROLES E PARÂMETROS (7 Colunas) -->
+        <div class="lg:col-span-7 bg-white rounded-3xl shadow-xl p-5 sm:p-7 space-y-6 border border-slate-200/80">
+            
+            <!-- Topo / Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Simulador Ademicon Sênior</h1>
+                    <p class="text-xs text-slate-500 font-medium">Consórcio de Investimentos e Crédito Planejado</p>
+                </div>
+                <div class="bg-ademicon-red/10 border border-ademicon-red/20 text-ademicon-red px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">
+                    v6.5 Oficial
+                </div>
+            </div>
+
+            <!-- 1. SELEÇÃO DE SEGMENTO -->
+            <div>
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2.5 flex items-center">
+                    <i class="fa-solid fa-layer-group text-ademicon-red mr-2"></i> 1. Selecione o Tipo de Consórcio
+                </label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="segmentGroup">
+                    <button type="button" data-segment="servicos" class="segment-btn p-3 rounded-2xl border-2 flex flex-col items-center justify-center space-y-1.5 transition-all border-ademicon-red bg-ademicon-red/5 text-ademicon-red shadow-sm font-bold">
+                        <i class="fa-solid fa-briefcase text-lg"></i>
+                        <span class="text-xs">Serviços</span>
+                    </button>
+                    <button type="button" data-segment="motos300" class="segment-btn p-3 rounded-2xl border-2 flex flex-col items-center justify-center space-y-1.5 transition-all border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 font-bold">
+                        <i class="fa-solid fa-motorcycle text-lg"></i>
+                        <span class="text-xs">Motos -300cc</span>
+                    </button>
+                    <button type="button" data-segment="autos" class="segment-btn p-3 rounded-2xl border-2 flex flex-col items-center justify-center space-y-1.5 transition-all border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 font-bold">
+                        <i class="fa-solid fa-car text-lg"></i>
+                        <span class="text-xs">Autos / +300cc</span>
+                    </button>
+                    <button type="button" data-segment="imoveis" class="segment-btn p-3 rounded-2xl border-2 flex flex-col items-center justify-center space-y-1.5 transition-all border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 font-bold">
+                        <i class="fa-solid fa-house text-lg"></i>
+                        <span class="text-xs">Imóveis</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. PARÂMETROS DO PLANO -->
+            <div class="space-y-5 pt-2">
+                <label class="block text-xs font-black text-slate-500 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-sliders text-ademicon-red mr-2"></i> 2. Parâmetros do Plano
+                </label>
+
+                <!-- Seleção de Crédito -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-700">Crédito do Consórcio:</span>
+                        <span id="creditDisplay" class="text-lg font-black text-ademicon-red bg-red-50 border border-red-100 px-3 py-0.5 rounded-xl">R$ 30.000,00</span>
+                    </div>
+                    <input type="range" id="creditRange" min="15000" max="30000" step="5000" value="30000" class="w-full accent-ademicon-red cursor-pointer h-2 bg-slate-200 rounded-lg">
+                    <div class="flex justify-between text-[11px] font-bold text-slate-400">
+                        <span id="minCreditLabel">R$ 15.000,00</span>
+                        <span id="maxCreditLabel">R$ 30.000,00</span>
+                    </div>
+                    <!-- Quick Credits Buttons -->
+                    <div class="flex flex-wrap gap-1.5 pt-1 overflow-x-auto no-scrollbar" id="quickCredits"></div>
+                </div>
+
+                <!-- Modalidade da Parcela -->
+                <div>
+                    <span class="block text-xs font-bold text-slate-700 mb-2">Modalidade da Parcela:</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label id="labelIntegral" class="flex items-center p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300 transition-all">
+                            <input type="radio" name="tipoParcela" value="integral" class="accent-ademicon-red h-4 w-4">
+                            <span class="ml-3 text-xs font-bold text-slate-700">Parcela Integral</span>
+                        </label>
+                        <label id="labelReduzida" class="flex items-center p-3.5 rounded-2xl border-2 border-ademicon-red bg-ademicon-red/5 cursor-pointer transition-all">
+                            <input type="radio" name="tipoParcela" value="reduzida" checked class="accent-ademicon-red h-4 w-4">
+                            <span class="ml-3 text-xs font-bold text-slate-900">Parcela Reduzida</span>
+                        </label>
+                    </div>
+                    <div id="reduzidaWarning" class="mt-2 text-xs text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 hidden flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-sm"></i>
+                        <span>Esse segmento não possui parcela reduzida!</span>
+                    </div>
+                </div>
+
+                <!-- Mês da Contemplação -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label for="mesContemplacao" class="text-xs font-bold text-slate-700 flex items-center">
+                            <i class="fa-solid fa-calendar-check text-ademicon-red mr-2"></i> Mês da Contemplação:
+                        </label>
+                        <span id="mesContemplacaoVal" class="text-xs font-black bg-slate-900 text-white px-2.5 py-1 rounded-lg">Mês 1</span>
+                    </div>
+                    <input type="range" id="mesContemplacao" min="1" max="47" value="1" class="w-full accent-ademicon-red cursor-pointer h-2 bg-slate-200 rounded-lg">
+                    <p class="text-[11px] text-slate-400">Impacta a diluição do saldo devedor e recálculo da parcela pós-contemplação.</p>
+                </div>
+
+                <!-- Seção de Oferta de Lance -->
+                <div class="pt-2 border-t border-slate-100">
+                    <div class="flex items-center justify-between" id="containerLanceToggle">
+                        <label for="toggleLance" class="text-xs font-bold text-slate-800 flex items-center cursor-pointer">
+                            <i class="fa-solid fa-hand-holding-dollar text-ademicon-red mr-2"></i> Oferta de Lance:
+                        </label>
+                        <label class="relative inline-flex items-center cursor-pointer" id="labelToggleLance">
+                            <input type="checkbox" id="toggleLance" checked class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-ademicon-red"></div>
+                        </label>
+                    </div>
+
+                    <div id="lanceWarning" class="mt-2.5 text-xs text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 hidden flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-sm"></i>
+                        <span>Esse segmento possui apenas a modalidade de Lance Livre (Recursos Próprios)!</span>
+                    </div>
+
+                    <!-- Modalidades de Lance -->
+                    <div id="lanceOptionsBox" class="mt-3 space-y-3">
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" data-lance="25" id="btnLance25" class="lance-mod-btn p-2.5 rounded-xl border-2 text-xs font-bold flex flex-col items-center justify-center transition-all border-ademicon-red bg-ademicon-red/5 text-ademicon-red">
+                                <span id="labelMod25">Embutido (25%)</span>
+                            </button>
+                            <button type="button" data-lance="40" id="btnLance40" class="lance-mod-btn p-2.5 rounded-xl border-2 text-xs font-bold flex flex-col items-center justify-center transition-all border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300">
+                                <span id="labelMod40">Misto (40%)</span>
+                            </button>
+                            <button type="button" data-lance="livre" id="btnLanceLivre" class="lance-mod-btn p-2.5 rounded-xl border-2 text-xs font-bold flex flex-col items-center justify-center transition-all border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300">
+                                <span>Lance Livre</span>
+                            </button>
+                        </div>
+
+                        <!-- Configuração Lance Livre Digitável -->
+                        <div id="lanceLivreConfig" class="hidden bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+                                <span>Percentual do Lance Livre (%):</span>
+                                <span id="valPercentualLivre" class="text-ademicon-red font-black text-sm">45%</span>
+                            </div>
+                            <input type="number" id="inputPercentualLivre" min="1" max="100" value="45" step="0.5" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold focus:outline-none focus:border-ademicon-red bg-white">
+                        </div>
+
+                        <div id="descLanceInfo" class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                            <i class="fa-solid fa-circle-info text-ademicon-red mr-1"></i> O lance embutido é calculado sobre o saldo total e descontado do valor do crédito liberado.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- PAINEL DIREITO: RESUMO E RESULTADOS (5 Colunas) -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-ademicon-red via-ademicon-darkRed to-slate-900 rounded-3xl shadow-xl p-6 sm:p-7 text-white flex flex-col justify-between space-y-6 relative overflow-hidden">
+            
+            <div class="space-y-5 relative z-10">
+                <!-- Header Status -->
+                <div class="flex justify-between items-start border-b border-white/20 pb-4">
+                    <div>
+                        <span class="text-[10px] tracking-widest uppercase font-black text-white/70 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">Resumo da Simulação</span>
+                        <h2 id="resSegmentoTitulo" class="text-lg font-black mt-1">Segmento: Serviços</h2>
+                    </div>
+                    <div class="bg-black/30 backdrop-blur-md px-3 py-1 rounded-xl text-xs font-black text-white border border-white/10">
+                        Prazo: <span id="resPrazoTotal">50 meses</span>
+                    </div>
+                </div>
+
+                <!-- Parcela Antes da Contemplação -->
+                <div class="bg-black/20 backdrop-blur-md rounded-2xl p-4 border border-white/15 space-y-1">
+                    <div class="flex justify-between items-center text-xs text-white/80 font-medium">
+                        <span>Parcela antes da contemplação:</span>
+                        <span id="resParcelaBase" class="line-through text-white/60 font-bold">De: R$ 776,22</span>
+                    </div>
+                    <div class="flex items-baseline justify-between pt-1">
+                        <span id="resParcelaReduzidaInfo" class="text-[11px] font-black bg-white text-ademicon-red px-2.5 py-0.5 rounded-md shadow-sm">Por: 12x de R$ 628,20</span>
+                        <span id="resParcelaAntes" class="text-2xl font-black tracking-tight">R$ 628,20</span>
+                    </div>
+                    <p class="text-[10px] text-white/70 pt-1">Taxa administrativa total e fundo de reserva inclusos no cálculo.</p>
+                </div>
+
+                <!-- Parcela Após Período Reduzido (12/24/36 Meses) -->
+                <div id="boxParcelaPosReduzida" class="bg-black/20 backdrop-blur-md rounded-2xl p-3.5 border border-white/15">
+                    <div class="flex justify-between items-center">
+                        <span id="labelPosReduzidaText" class="text-xs text-white/90 font-bold">Parcela Após 12 Meses:</span>
+                        <span id="resParcelaAposReduzida" class="text-lg font-black">R$ 858,62</span>
+                    </div>
+                    <p class="text-[10px] text-white/60 mt-0.5">Diferença da parcela reduzida diluída nos meses remanescentes.</p>
+                </div>
+
+                <!-- Parcela Após a Contemplação -->
+                <div class="bg-black/20 backdrop-blur-md rounded-2xl p-4 border-l-4 border-l-white border-white/15">
+                    <div class="flex justify-between items-center">
+                        <span id="labelParcelaContemplacao" class="text-xs text-white font-black">Parcela após contemplação (2º mês):</span>
+                        <span id="resParcelaPosContemplacao" class="text-xl font-black">R$ 558,90</span>
+                    </div>
+                    <p id="descInfoPosContemplacao" class="text-[10px] text-white/70 mt-1 leading-tight">Com abatimento proporcional da oferta de lance.</p>
+                </div>
+
+                <!-- Detalhes Financeiros Grid -->
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <div class="bg-black/30 p-3 rounded-2xl border border-white/10">
+                        <span class="text-[10px] uppercase font-bold text-white/70 block">Crédito Contratado</span>
+                        <span id="resCreditoContratado" class="text-sm sm:text-base font-black">R$ 30.000,00</span>
+                    </div>
+                    <div class="bg-black/30 p-3 rounded-2xl border border-white/10">
+                        <span class="text-[10px] uppercase font-bold text-white/70 block">Saldo Devedor Estimado</span>
+                        <span id="resSaldoDevedor" class="text-sm sm:text-base font-black">R$ 27.852,57</span>
+                    </div>
+                    <div class="bg-black/30 p-3 rounded-2xl border border-white/10">
+                        <span class="text-[10px] uppercase font-bold text-white/70 block">Valor Total do Lance</span>
+                        <span id="resValorLanceTotal" class="text-sm sm:text-base font-black text-amber-300">R$ 14.904,00</span>
+                        <span id="resLanceParcelas" class="text-[10px] text-white/70 block"></span>
+                    </div>
+                    <div class="bg-black/30 p-3 rounded-2xl border border-white/10">
+                        <span class="text-[10px] uppercase font-bold text-white/70 block">Crédito Liberado</span>
+                        <span id="resCreditoLiberado" class="text-sm sm:text-base font-black text-emerald-300">R$ 23.748,00</span>
+                    </div>
+                </div>
+
+                <!-- Detalhes do Lance Pagto/Embutido -->
+                <div id="detalhesLanceBox" class="bg-black/30 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex justify-between items-center text-xs font-bold text-white/90">
+                    <span id="resLancePago" class="flex items-center"><i class="fa-solid fa-wallet text-amber-400 mr-1.5"></i> Pago: R$ 7.452,00</span>
+                    <span id="resLanceEmbutido" class="flex items-center"><i class="fa-solid fa-scissors text-emerald-400 mr-1.5"></i> Embutido: R$ 7.452,00</span>
+                </div>
+            </div>
+
+            <!-- Botões de Ação do Consultor -->
+            <div class="space-y-2 pt-2 relative z-10">
+                <button type="button" id="btnCopiar" class="w-full py-3.5 bg-white hover:bg-slate-100 text-ademicon-red font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Enviar Resumo para o Cliente</span>
+                </button>
+                <button type="button" onclick="window.print()" class="w-full py-3 bg-black/20 hover:bg-black/30 text-white font-bold text-xs rounded-2xl transition-all flex items-center justify-center space-x-2 border border-white/15">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Imprimir Proposta / PDF</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script de Regras e Negócio Ademicon -->
+    <script>
+        /*
+         * REGRAS EXTRAÍDAS DOS 13 PRINTS OFICIAIS (todos com contemplação no 1º mês):
+         *
+         *  - baseLance  = crédito × multBase  (é sobre ela que incidem os % de lance e o saldo a diluir)
+         *      Serviços 1,242 | Motos 1,282 | Autos 1,162 | Imóveis 1,242
+         *  - prazoTotal real: Serviços 48 | Motos 52 | Autos 90 | Imóveis 220
+         *  - Parcela pós-contemplação = (baseLance − parcelas já pagas − lance total) ÷ (prazo − mês da contemplação)
+         *      e nunca menor que a "parcela mínima" do segmento (quando há lance).
+         *  - Divisão do lance (pago / embutido, em % da baseLance):
+         *      Serviços 25% = 12% pago + 13% emb | 40% = 20% + 20%
+         *      Autos    25% = 0% + 25%           | 40% = 15% + 25%
+         *      Imóveis  "25%" = 0% + 20%         | 40% = 20% + 20%
+         *  - Parcelas de referência (por crédito de referência) escalam linearmente com o crédito.
+         */
+        const segmentsData = {
+            servicos: {
+                nome: "Serviços",
+                prazoTotal: 48,            // usado nos cálculos
+                prazoExibicao: 50,         // apenas informativo
+                creditos: [15000, 20000, 25000, 30000],
+                creditoRef: 30000,
+                creditoPadrao: 30000,
+                multBase: 1.242,
+                parcelaIntegralRef: 776.22,
+                temReduzida: true,
+                mesesReduzida: 12,
+                parcelaReduzidaRef: 628.20,
+                parcelaAposReduzidaRef: 858.62,
+                minPosPct: 0.015,          // 1,5% da base = R$ 558,90 (30 mil)
+                minPosRef: null,
+                lances: { '25': { pago: 0.12, emb: 0.13 }, '40': { pago: 0.20, emb: 0.20 } },
+                parcelasPorPct: 1,
+                snapParcelas: false
+            },
+            motos300: {
+                nome: "Motos -300cc",
+                prazoTotal: 52,            // usado nos cálculos
+                prazoExibicao: 60,         // apenas informativo
+                creditos: [15000, 20000, 25000, 30000],
+                creditoRef: 30000,
+                creditoPadrao: 30000,
+                multBase: 1.282,
+                parcelaIntegralRef: 739.62,
+                temReduzida: false,
+                mesesReduzida: 0,
+                parcelaReduzidaRef: null,
+                parcelaAposReduzidaRef: null,
+                minPosPct: null,
+                minPosRef: 641.01,         // parcela mínima para 30 mil
+                lances: null,              // somente lance livre
+                parcelasPorPct: 1,
+                snapParcelas: false
+            },
+            autos: {
+                nome: "Automóveis / +300cc",
+                prazoTotal: 90,
+                prazoExibicao: 90,
+                mostrarParcelaMinima: false,
+                creditos: Array.from({ length: 63 }, (_, i) => 40000 + i * 5000), // 40 mil a 350 mil, de 5 em 5 mil
+                creditoRef: 60000,
+                creditoPadrao: 60000,
+                multBase: 1.162,
+                parcelaIntegralRef: 774.66,
+                temReduzida: true,
+                mesesReduzida: 24,
+                parcelaReduzidaRef: 418.32,
+                parcelaAposReduzidaRef: 978.03,
+                minPosPct: 0.007,          // 0,7% da base = R$ 488,04 (60 mil)
+                minPosRef: null,
+                lances: { '25': { pago: 0.00, emb: 0.25 }, '40': { pago: 0.15, emb: 0.25 } },
+                parcelasPorPct: 1,
+                snapParcelas: false
+            },
+            imoveis: {
+                nome: "Imóveis",
+                prazoTotal: 220,
+                prazoExibicao: 220,
+                creditos: Array.from({ length: 47 }, (_, i) => 80000 + i * 20000), // 80 mil a 1 milhão, de 20 em 20 mil
+                creditoRef: 80000,
+                creditoPadrao: 80000,
+                multBase: 1.242,
+                parcelaIntegralRef: 451.60,
+                temReduzida: true,
+                mesesReduzida: 0,          // 0 = parcela reduzida vale até a contemplação (sem "após X meses")
+                parcelaReduzidaRef: 269.84,
+                parcelaAposReduzidaRef: null,
+                minPosPct: null,
+                minPosRef: null,
+                lances: { '25': { pago: 0.00, emb: 0.20 }, '40': { pago: 0.20, emb: 0.20 } },
+                parcelasPorPct: 2.2,       // 220 parcelas = 100%
+                snapParcelas: true         // lance livre é arredondado em parcelas inteiras (ex.: 135 parcelas = 61,36%)
+            }
+        };
+
+        // Estado do Simulador
+        let currentSegment = 'servicos';
+        let currentCredit = 30000;
+        let currentTipoParcela = 'reduzida';
+        let currentMesContemplacao = 1;
+        let useLanceEmbutido = true;
+        let lanceModalidade = '40';
+
+        // Referências do DOM
+        const segmentButtons = document.querySelectorAll('.segment-btn');
+        const creditRange = document.getElementById('creditRange');
+        const creditDisplay = document.getElementById('creditDisplay');
+        const minCreditLabel = document.getElementById('minCreditLabel');
+        const maxCreditLabel = document.getElementById('maxCreditLabel');
+        const quickCreditsContainer = document.getElementById('quickCredits');
+        const labelIntegral = document.getElementById('labelIntegral');
+        const labelReduzida = document.getElementById('labelReduzida');
+        const reduzidaWarning = document.getElementById('reduzidaWarning');
+        const mesContemplacaoInput = document.getElementById('mesContemplacao');
+        const mesContemplacaoVal = document.getElementById('mesContemplacaoVal');
+        const toggleLance = document.getElementById('toggleLance');
+        const lanceWarning = document.getElementById('lanceWarning');
+        const lanceOptionsBox = document.getElementById('lanceOptionsBox');
+        const lanceModBtns = document.querySelectorAll('.lance-mod-btn');
+        const lanceLivreConfig = document.getElementById('lanceLivreConfig');
+        const inputPercentualLivre = document.getElementById('inputPercentualLivre');
+        const valPercentualLivre = document.getElementById('valPercentualLivre');
+        const labelMod25 = document.getElementById('labelMod25');
+        const labelMod40 = document.getElementById('labelMod40');
+        const descLanceInfo = document.getElementById('descLanceInfo');
+
+        function formatMoney(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function pctPtBR(p) {
+            return (Math.round(p * 100) / 100).toString().replace('.', ',');
+        }
+
+        function renderQuickCredits() {
+            const seg = segmentsData[currentSegment];
+            quickCreditsContainer.innerHTML = '';
+            if (seg.creditos.length > 12) return;
+            seg.creditos.forEach(cred => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `px-3 py-1 text-xs font-bold rounded-xl border transition-all whitespace-nowrap ${cred === currentCredit ? 'bg-ademicon-red text-white border-ademicon-red shadow-sm' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'}`;
+                btn.textContent = (cred >= 1000 ? (cred / 1000) + ' mil' : cred);
+                btn.onclick = () => {
+                    currentCredit = cred;
+                    creditRange.value = cred;
+                    calcular();
+                };
+                quickCreditsContainer.appendChild(btn);
+            });
+        }
+
+        function updateTipoParcelaUI() {
+            const ativo = "flex items-center p-3.5 rounded-2xl border-2 border-ademicon-red bg-ademicon-red/5 cursor-pointer transition-all";
+            const inativo = "flex items-center p-3.5 rounded-2xl border-2 border-slate-200 bg-slate-50 cursor-pointer hover:border-slate-300 transition-all";
+            const reduzida = currentTipoParcela === 'reduzida';
+            labelReduzida.className = reduzida ? ativo : inativo;
+            labelIntegral.className = reduzida ? inativo : ativo;
+            document.querySelector(`input[name="tipoParcela"][value="${currentTipoParcela}"]`).checked = true;
+            if (!segmentsData[currentSegment].temReduzida) labelReduzida.classList.add('opacity-40', 'pointer-events-none');
+        }
+
+        function updateSegmentUI() {
+            const seg = segmentsData[currentSegment];
+
+            // Rótulos dos botões de lance (divisão pago/embutido de cada segmento)
+            if (seg.lances) {
+                const l25 = seg.lances['25'], l40 = seg.lances['40'];
+                const tot25 = Math.round((l25.pago + l25.emb) * 100);
+                const tot40 = Math.round((l40.pago + l40.emb) * 100);
+                labelMod25.textContent = `Embutido (${tot25}%)`;
+                labelMod40.textContent = `Misto (${tot40}%)`;
+            }
+
+            const minC = seg.creditos[0];
+            const maxC = seg.creditos[seg.creditos.length - 1];
+            creditRange.min = minC;
+            creditRange.max = maxC;
+            creditRange.step = currentSegment === 'imoveis' ? 20000 : 5000;
+            if (currentCredit < minC || currentCredit > maxC) currentCredit = seg.creditoPadrao;
+            creditRange.value = currentCredit;
+            minCreditLabel.textContent = formatMoney(minC);
+            maxCreditLabel.textContent = formatMoney(maxC);
+
+            // Parcela reduzida por segmento
+            if (!seg.temReduzida) {
+                reduzidaWarning.classList.remove('hidden');
+                currentTipoParcela = 'integral';
+            } else {
+                reduzidaWarning.classList.add('hidden');
+                labelReduzida.classList.remove('opacity-40', 'pointer-events-none');
+            }
+            updateTipoParcelaUI();
+
+            // Motos: somente Lance Livre
+            if (!seg.lances) {
+                lanceWarning.classList.remove('hidden');
+                lanceModalidade = 'livre';
+                document.getElementById('btnLance25').classList.add('hidden');
+                document.getElementById('btnLance40').classList.add('hidden');
+            } else {
+                lanceWarning.classList.add('hidden');
+                document.getElementById('btnLance25').classList.remove('hidden');
+                document.getElementById('btnLance40').classList.remove('hidden');
+            }
+            updateLanceModButtonsUI();
+
+            mesContemplacaoInput.max = seg.prazoTotal - 1;
+            if (currentMesContemplacao >= seg.prazoTotal) currentMesContemplacao = 1;
+            mesContemplacaoInput.value = currentMesContemplacao;
+            mesContemplacaoVal.textContent = `Mês ${currentMesContemplacao}`;
+
+            calcular();
+        }
+
+        function updateLanceModButtonsUI() {
+            lanceModBtns.forEach(b => {
+                if (b.dataset.lance === lanceModalidade) {
+                    b.className = "lance-mod-btn p-2.5 rounded-xl border-2 text-xs font-bold flex flex-col items-center justify-center transition-all border-ademicon-red bg-ademicon-red/5 text-ademicon-red shadow-sm";
+                } else {
+                    b.className = "lance-mod-btn p-2.5 rounded-xl border-2 text-xs font-bold flex flex-col items-center justify-center transition-all border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300";
+                }
+            });
+            const seg = segmentsData[currentSegment];
+            if (!seg.lances) {
+                document.getElementById('btnLance25').classList.add('hidden');
+                document.getElementById('btnLance40').classList.add('hidden');
+            }
+            if (lanceModalidade === 'livre' && useLanceEmbutido) {
+                lanceLivreConfig.classList.remove('hidden');
+            } else {
+                lanceLivreConfig.classList.add('hidden');
+            }
+        }
+
+        function calcular() {
+            const seg = segmentsData[currentSegment];
+            renderQuickCredits();
+
+            const f = currentCredit / seg.creditoRef;                 // fator de escala sobre os valores de referência
+            const baseLance = currentCredit * seg.multBase;           // base de cálculo do lance e do saldo
+            const prazo = seg.prazoTotal;
+            const M = currentMesContemplacao;
+
+            // ---- Parcelas antes da contemplação ----
+            const parcelaIntegral = seg.parcelaIntegralRef * f;
+            const usaReduzida = currentTipoParcela === 'reduzida' && seg.temReduzida;
+            const parcelaReduzida = usaReduzida ? seg.parcelaReduzidaRef * f : parcelaIntegral;
+            const temAposReduzida = usaReduzida && seg.mesesReduzida > 0 && seg.parcelaAposReduzidaRef;
+            const parcelaAposReduzida = temAposReduzida ? seg.parcelaAposReduzidaRef * f : parcelaIntegral;
+
+            // Total já pago até o mês da contemplação (inclusive)
+            let pagoAteMes;
+            if (!usaReduzida) {
+                pagoAteMes = parcelaIntegral * M;
+            } else if (!seg.mesesReduzida || M <= seg.mesesReduzida) {
+                pagoAteMes = parcelaReduzida * M;
+            } else {
+                pagoAteMes = parcelaReduzida * seg.mesesReduzida + parcelaAposReduzida * (M - seg.mesesReduzida);
+            }
+
+            // ---- Lance ----
+            let valorLance = 0, embutido = 0, proprio = 0, pctLance = 0;
+            if (useLanceEmbutido) {
+                if (lanceModalidade === 'livre') {
+                    let pct = parseFloat(inputPercentualLivre.value) || 0;
+                    pct = Math.min(100, Math.max(0, pct));
+                    if (seg.snapParcelas) {
+                        const parcelasLance = Math.round(pct * seg.parcelasPorPct);
+                        pct = parcelasLance / seg.parcelasPorPct;
+                    }
+                    pctLance = pct;
+                    valorLance = baseLance * pct / 100;
+                    proprio = valorLance;
+                    embutido = 0;
+                } else if (seg.lances && seg.lances[lanceModalidade]) {
+                    const l = seg.lances[lanceModalidade];
+                    proprio = baseLance * l.pago;
+                    embutido = baseLance * l.emb;
+                    valorLance = proprio + embutido;
+                    pctLance = (l.pago + l.emb) * 100;
+                }
+            }
+            const parcelasLance = Math.round(pctLance * seg.parcelasPorPct);
+            const creditoLiberado = Math.max(0, currentCredit - embutido);
+
+            // ---- Parcela após a contemplação ----
+            const saldoDevedor = Math.max(0, baseLance - pagoAteMes - valorLance);
+            const mesesRestantes = Math.max(1, prazo - M);
+            let parcelaPosContemplacao = saldoDevedor / mesesRestantes;
+
+            const minPos = seg.minPosPct ? baseLance * seg.minPosPct : (seg.minPosRef ? seg.minPosRef * f : 0);
+            let aplicouMinima = false;
+            if (useLanceEmbutido && valorLance > 0 && minPos > 0 && parcelaPosContemplacao < minPos) {
+                parcelaPosContemplacao = minPos;
+                aplicouMinima = true;
+            }
+
+            // ---- Interface ----
+            document.getElementById('resSegmentoTitulo').textContent = `Segmento: ${seg.nome}`;
+            document.getElementById('resPrazoTotal').textContent = `${seg.prazoExibicao || prazo} meses`;
+            creditDisplay.textContent = formatMoney(currentCredit);
+
+            document.getElementById('resCreditoContratado').textContent = formatMoney(currentCredit);
+            document.getElementById('resCreditoLiberado').textContent = formatMoney(creditoLiberado);
+            document.getElementById('resSaldoDevedor').textContent = formatMoney(saldoDevedor);
+            document.getElementById('resValorLanceTotal').textContent = formatMoney(valorLance);
+            document.getElementById('resLanceParcelas').textContent = valorLance > 0 ? `${parcelasLance} parcelas ${pctPtBR(pctLance)}%` : '';
+            document.getElementById('resLancePago').innerHTML = `<i class="fa-solid fa-wallet text-amber-400 mr-1.5"></i> Pago: ${formatMoney(proprio)}`;
+            document.getElementById('resLanceEmbutido').innerHTML = `<i class="fa-solid fa-scissors text-emerald-400 mr-1.5"></i> Embutido: ${formatMoney(embutido)}`;
+
+            // Parcela antes da contemplação (De/Por só quando há parcela reduzida)
+            const elBase = document.getElementById('resParcelaBase');
+            const elInfo = document.getElementById('resParcelaReduzidaInfo');
+            document.getElementById('resParcelaAntes').textContent = formatMoney(parcelaReduzida);
+            if (usaReduzida) {
+                elBase.textContent = `De: ${formatMoney(parcelaIntegral)}`;
+                elBase.classList.remove('hidden');
+                elInfo.textContent = seg.mesesReduzida > 0
+                    ? `Por: ${seg.mesesReduzida}x de ${formatMoney(parcelaReduzida)}`
+                    : `Por: ${formatMoney(parcelaReduzida)}`;
+                elInfo.classList.remove('hidden');
+            } else {
+                elBase.classList.add('hidden');
+                elInfo.classList.add('hidden');
+            }
+
+            // Parcela após o período reduzido (não existe em Imóveis nem sem parcela reduzida)
+            const boxPosReduzida = document.getElementById('boxParcelaPosReduzida');
+            if (temAposReduzida) {
+                boxPosReduzida.classList.remove('hidden');
+                document.getElementById('labelPosReduzidaText').textContent = `Parcela Após ${seg.mesesReduzida} Meses:`;
+                document.getElementById('resParcelaAposReduzida').textContent = formatMoney(parcelaAposReduzida);
+            } else {
+                boxPosReduzida.classList.add('hidden');
+            }
+
+            document.getElementById('labelParcelaContemplacao').textContent = `Parcela após contemplação (${M}º mês):`;
+            document.getElementById('resParcelaPosContemplacao').textContent = (aplicouMinima && seg.mostrarParcelaMinima !== false ? '(parcela mínima) ' : '') + formatMoney(parcelaPosContemplacao);
+            document.getElementById('descInfoPosContemplacao').textContent = (aplicouMinima && seg.mostrarParcelaMinima !== false)
+                ? 'Parcela mínima do segmento aplicada (o abatimento do lance ultrapassou o piso).'
+                : (valorLance > 0 ? 'Saldo remanescente (já descontado o lance) diluído nos meses restantes.' : 'Saldo remanescente diluído nos meses restantes.');
+
+            // Descrição da divisão do lance
+            if (useLanceEmbutido) {
+                if (lanceModalidade === 'livre') {
+                    descLanceInfo.innerHTML = '<i class="fa-solid fa-circle-info text-ademicon-red mr-1"></i> Lance livre: 100% com recursos próprios, calculado sobre o saldo total do plano. Crédito liberado integral.';
+                } else if (seg.lances && seg.lances[lanceModalidade]) {
+                    const l = seg.lances[lanceModalidade];
+                    descLanceInfo.innerHTML = `<i class="fa-solid fa-circle-info text-ademicon-red mr-1"></i> Lance de ${pctPtBR(pctLance)}% do saldo total: ${pctPtBR(l.pago * 100)}% pago pelo cliente + ${pctPtBR(l.emb * 100)}% embutido (descontado do crédito liberado).`;
+                }
+            }
+
+            const detalhesLanceBox = document.getElementById('detalhesLanceBox');
+            detalhesLanceBox.classList.toggle('hidden', !useLanceEmbutido || valorLance === 0);
+        }
+
+        // Event Listeners
+        segmentButtons.forEach(btn => {
+            btn.onclick = () => {
+                segmentButtons.forEach(b => {
+                    b.className = "segment-btn p-3 rounded-2xl border-2 flex flex-col items-center justify-center space-y-1.5 transition-all border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 font-bold";
+                });
+                btn.className = "segment-btn p-3 rounded-2xl border-2 flex flex-col items-center justify-center space-y-1.5 transition-all border-ademicon-red bg-ademicon-red/5 text-ademicon-red shadow-sm font-bold";
+                const anterior = currentSegment;
+                currentSegment = btn.dataset.segment;
+                currentCredit = segmentsData[currentSegment].creditoPadrao;
+                if (anterior === 'motos300' && currentSegment !== 'motos300') {
+                    currentTipoParcela = 'reduzida';
+                    lanceModalidade = '40';
+                }
+                updateSegmentUI();
+            };
+        });
+
+        creditRange.oninput = (e) => {
+            currentCredit = parseFloat(e.target.value);
+            calcular();
+        };
+
+        document.querySelectorAll('input[name="tipoParcela"]').forEach(radio => {
+            radio.onchange = (e) => {
+                currentTipoParcela = e.target.value;
+                updateTipoParcelaUI();
+                calcular();
+            };
+        });
+
+        mesContemplacaoInput.oninput = (e) => {
+            currentMesContemplacao = parseInt(e.target.value);
+            mesContemplacaoVal.textContent = `Mês ${currentMesContemplacao}`;
+            calcular();
+        };
+
+        toggleLance.onchange = (e) => {
+            useLanceEmbutido = e.target.checked;
+            if (useLanceEmbutido) {
+                lanceOptionsBox.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                lanceOptionsBox.classList.add('opacity-40', 'pointer-events-none');
+            }
+            updateLanceModButtonsUI();
+            calcular();
+        };
+
+        lanceModBtns.forEach(btn => {
+            btn.onclick = () => {
+                lanceModalidade = btn.dataset.lance;
+                updateLanceModButtonsUI();
+                calcular();
+            };
+        });
+
+        inputPercentualLivre.oninput = (e) => {
+            valPercentualLivre.textContent = `${e.target.value || 0}%`;
+            calcular();
+        };
+
+        document.getElementById('btnCopiar').onclick = () => {
+            const text = `📊 PROPOSTA DE CONSÓRCIO ADEMICON\nSegmento: ${segmentsData[currentSegment].nome}\nCrédito Contratado: ${formatMoney(currentCredit)}\nCrédito Liberado: ${document.getElementById('resCreditoLiberado').textContent}\nParcela Inicial: ${document.getElementById('resParcelaAntes').textContent}\nParcela Pós Contemplação: ${document.getElementById('resParcelaPosContemplacao').textContent}`;
+            navigator.clipboard.writeText(text).then(() => alert("Resumo copiado para a área de transferência!"));
+        };
+
+        // Render Inicial
+        updateSegmentUI();
+    </script>
+</body>
+</html>
