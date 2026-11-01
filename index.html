@@ -610,7 +610,7 @@
             }
 
             document.getElementById('labelParcelaContemplacao').textContent = `Parcela após contemplação (${M}º mês):`;
-            document.getElementById('resParcelaPosContemplacao').textContent = (aplicouMinima && seg.mostrarParcelaMinima !== false ? '(parcela mínima) ' : '') + formatMoney(parcelaPosContemplacao);
+            document.getElementById('resParcelaPosContemplacao').textContent = '' + formatMoney(parcelaPosContemplacao);
             document.getElementById('descInfoPosContemplacao').textContent = (aplicouMinima && seg.mostrarParcelaMinima !== false)
                 ? 'Parcela mínima do segmento aplicada (o abatimento do lance ultrapassou o piso).'
                 : (valorLance > 0 ? 'Saldo remanescente (já descontado o lance) diluído nos meses restantes.' : 'Saldo remanescente diluído nos meses restantes.');
